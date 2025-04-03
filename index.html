@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chá de Casa Nova</title>
+    
+    <!-- Firebase SDKs compatíveis -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            text-align: center; 
+            background-color: #ffe4e1; /* Rosa claro */
+        }
+        ul { list-style-type: none; padding: 0; }
+        li { padding: 10px; border: 1px solid #ddd; margin: 5px; cursor: pointer; background-color: #ffcccb; }
+        .selecionado { background-color: #d3ffd3; pointer-events: none; }
+        h1, h2 { color: #d63384; }
+        button { background-color: #ff69b4; color: white; border: none; padding: 10px; cursor: pointer; }
+        button:hover { background-color: #ff1493; }
+    </style>
+</head>
+<body>
+    <h1>Lista de Presentes - Chá de Casa Nova</h1>
+    <ul id="lista-presentes"></ul>
+    
+    <h2>Outros Presentes</h2>
+    <input type="text" id="outro-presente" placeholder="Digite um presente">
+    <button onclick="adicionarOutroPresente()">Adicionar</button>
+    
+    <script>
+        // Configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyArH7GQk_iolSBWXCZdP-lxxGYzYRSIrB4",
+            authDomain: "cha-da-thalissa.firebaseapp.com",
+            databaseURL: "https://cha-da-thalissa-default-rtdb.firebaseio.com",
+            projectId: "cha-da-thalissa",
+            storageBucket: "cha-da-thalissa.appspot.com",
+            messagingSenderId: "260999067043",
+            appId: "1:260999067043:web:4c47bd573c1ead86a2d616",
+            measurementId: "G-LT0Z040NM4"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const listaRef = db.ref("presentes");
+
+        const itens = {
+            "Cozinha": [
+                "Porta temperos + porta frios",
+                "Escorredor de louças",
+                "Travessas de vidro",
+                "Conjunto de xícaras",
+                "Ralador + descascador",
+                "Sanduicheira",
+                "Açucareiro + saleiro + paliteiro",
+                "Escorredor de macarrão + copo medidor",
+                "Tábua de corte + faca para carne",
+                "Forma de bolo",
+                "Jarra e taça",
+                "Panelas",
+                "Peneira",
+                "Espátulas (silicone, nylon, etc)",
+                "Espremedor de limão"
+            ],
+            "Quarto e Sala": [
+                "Jogo de lençol",
+                "Travesseiros",
+                "Mantas ou cobertores",
+                "Tapetes",
+                "Cortinas",
+                "Almofadas decorativas"
+            ],
+            "Banheiro": [
+                "Toalhas de banho",
+                "Toalhas de rosto",
+                "Tapete para banheiro",
+                "Porta sabonete líquido",
+                "Lixeira para banheiro",
+                "Porta escova de dentes"
+            ],
+            "Utilidades Gerais": [
+                "Ferro de passar",
+                "Cesto de roupas",
+                "Vassoura + pá de lixo",
+                "Rodo + panos de chão",
+                "Organizadores diversos"
+            ]
+        };
+
+        function renderizarLista(snapshot) {
+            const lista = document.getElementById("lista-presentes");
+            lista.innerHTML = "";
+            Object.keys(itens).forEach(categoria => {
+                const titulo = document.createElement("h2");
+                titulo.textContent = categoria;
+                lista.appendChild(titulo);
+                itens[categoria].forEach(item => {
+                    const li = document.createElement("li");
+                    li.textContent = item;
+                    li.onclick = () => selecionarItem(item);
+                    if (snapshot.child(item).exists()) {
+                        li.classList.add("selecionado");
+                        li.textContent += " (Já escolhido)";
+                    }
+                    lista.appendChild(li);
+                });
+            });
+        }
+
+        function selecionarItem(item) {
+            listaRef.child(item).set(true);
+        }
+
+        function adicionarOutroPresente() {
+            const input = document.getElementById("outro-presente");
+            const novoItem = input.value.trim();
+            if (novoItem) {
+                listaRef.child(novoItem).set(true);
+                input.value = "";
+            }
+        }
+
+        listaRef.on("value", renderizarLista);
+    </script>
+</body>
+</html>
